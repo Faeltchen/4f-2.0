@@ -17,7 +17,7 @@ export default class Navigation extends React.Component {
       <BS.Navbar inverse collapseOnSelect>
         <BS.Navbar.Header>
           <BS.Navbar.Brand>
-            <a href="#brand">{this.props.modalStore.test} React-Bootstrap</a>
+            <a href="#brand">React-Bootstrap</a>
           </BS.Navbar.Brand>
           <BS.Navbar.Toggle />
         </BS.Navbar.Header>
@@ -41,10 +41,10 @@ export default class Navigation extends React.Component {
             <BS.NavItem eventKey={1} href="#">
               Login
             </BS.NavItem>
-            <BS.NavItem eventKey={2} href="#" onClick={() => {this.props.modalStore.addTest("123123")}} >
+            <BS.NavItem eventKey={2} href="#" onClick={() => {this.props.store.modal.showModal("register"); }}>
               <span>Register</span>
-              <Register data={this.props.data} />
             </BS.NavItem>
+            <Register store={this.props.store} />
           </BS.Nav>
         </BS.Navbar.Collapse>
       </BS.Navbar>

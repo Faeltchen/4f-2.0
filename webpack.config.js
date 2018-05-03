@@ -1,4 +1,7 @@
 const webpack = require('webpack');
+const path = require('path');
+const CleanWebpackPlugin = require('clean-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: [
@@ -33,7 +36,11 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['*', '.js', '.jsx']
+    extensions: ['*', '.js', '.jsx'],
+    alias: {
+      utils: path.resolve(__dirname, 'src/utils/'),
+      modals: path.resolve(__dirname, 'src/modals/'),
+    }
   },
   output: {
     path: __dirname + '/dist',
@@ -41,11 +48,9 @@ module.exports = {
     filename: 'bundle.js'
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin()
+    new CleanWebpackPlugin(['dist']),
+    new HtmlWebpackPlugin({
+     template: 'index.html'
+    }),
   ],
-  devServer: {
-    contentBase: './dist',
-    disableHostCheck: true,   // That solved it
-    hot: true
-  }
 };

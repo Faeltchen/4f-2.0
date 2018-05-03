@@ -2,15 +2,44 @@ const path = require('path');
 const webpack = require('webpack');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const merge = require('webpack-merge');
+const common = require('./webpack.config.js');
 
 var spawn = require('child_process').spawn;
-spawn('node', ['./src/StaticServer.js']);
 spawn('node', ['./src/APIServer.js']);
 
+module.exports = merge(common, {
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          test: /[\\/]node_modules[\\/]/,
+          name: "vendor",
+          chunks: "initial",
+        },
+      },
+    },
+  },
+  devServer: {
+    contentBase: './dist',
+    disableHostCheck: true,   // That solved it
+    hot: true
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.DefinePlugin({
+      'process.env': {
+        API_PORT: 443,
+        NODE_ENV: JSON.stringify('development')
+      }
+     }),
+  ],
+});
+/*
 module.exports = env => {
   // Use env.<YOUR VARIABLE> here:
-//  console.log('Production: ', env.production) // true
-  console.log(process.env.NODE_ENV);
+  console.log('Production: ', env.production) // true
+  console.log(NODE_ENV);
 
   return {
     entry: [
@@ -67,13 +96,6 @@ module.exports = env => {
           minSizeReduce: 2,
           moveToParents: true,
       }),
-
-      /*
-      new webpack.optimize.AggressiveSplittingPlugin({
-          minSize: 10000,
-          maxSize: 30000,
-      }),
-      */
       new HtmlWebpackPlugin({
         template: 'index.html'
       }),
@@ -93,3 +115,4 @@ module.exports = env => {
     watch: true,
   }
 }
+*/

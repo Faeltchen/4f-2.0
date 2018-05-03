@@ -1,12 +1,12 @@
 import React from 'react';
 import * as BS from 'react-bootstrap';
-import localStorage from 'mobx-localstorage';
 import { observable, action } from "mobx";
 import { observer } from "mobx-react";
+import { hot } from 'react-hot-loader';
 
 import Navigation from "./components/navigation";
 
-export default class App extends React.Component {
+class App extends React.Component {
 
   constructor(props) {
     super(props);
@@ -38,9 +38,11 @@ export default class App extends React.Component {
 
   render() {
     console.log("render app");
+    console.log(this.props.store);
     return(
+
       <div>
-        <Navigation modalStore={this.props.store}/>
+        <Navigation store={this.props.store}/>
       </div>
     );
   }
@@ -67,3 +69,8 @@ export default class App extends React.Component {
   Tasks left: {this.props.store.unfinishedTodoCount}
   */
 }
+
+if(module.hot) {
+  module.hot.accept();
+}
+export default App;

@@ -1,0 +1,6 @@
+// Forms ======================================================================
+.control-label-inline {
+  @media (min-width: $screen-sm-min) {
+    padding-top: 7px;
+  }
+}
