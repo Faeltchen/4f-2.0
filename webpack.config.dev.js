@@ -6,7 +6,7 @@ const merge = require('webpack-merge');
 const common = require('./webpack.config.js');
 
 var spawn = require('child_process').spawn;
-spawn('node', ['./src/APIServer.js']);
+//spawn('node', ['./src/APIServer.js']);
 
 module.exports = merge(common, {
   optimization: {

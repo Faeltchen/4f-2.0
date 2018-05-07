@@ -6,6 +6,8 @@ class ModalStore {
   @observable test = "asd";
 
   constructor(_this) {
+    console.log("---")
+    console.log(store);
     var modalStoreStoraged = store.get("modalStore");
 
     if(typeof modalStoreStoraged != "undefined") {

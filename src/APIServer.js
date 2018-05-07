@@ -1,54 +1,27 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var User = require("./models/user");
 
 var app = express();
+var router = express.Router();
 
 mongoose.connect('mongodb://localhost/4f');
 
-app.get('/api/createUser', function (req, res) {
-  /*
-
-  // create a sample user
-  var nick = new User({
-    name: 'Nick Cerminara',
-    password: 'password',
-    admin: true
-  });
-
-  // save the sample user
-  nick.save(function(err) {
-    if (err) throw err;
-
-    console.log('User saved successfully');
-    res.json({ success: true });
-  });
-  */
-  res.send('Hello World!');
+// Add headers
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
 });
 
-app.post('/api/createUser', function (req, res) {
-  res.send(req.body.username);
-  /*
+var bodyParser = require('body-parser')
+app.use(bodyParser.json());       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
 
-  // create a sample user
-  var nick = new User({
-    name: 'Nick Cerminara',
-    password: 'password',
-    admin: true
-  });
-
-  // save the sample user
-  nick.save(function(err) {
-    if (err) throw err;
-
-    console.log('User saved successfully');
-    res.json({ success: true });
-  });
-  */
-  //res.send('Hello World!');
-});
-
+app.use(require('./controllers/index'));
 
 app.listen(443, function () {
   console.log('Example app listening on port 443!');

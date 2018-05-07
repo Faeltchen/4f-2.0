@@ -3,7 +3,7 @@ import axios from 'axios';
 class HTTPService {
   constructor() {
     let service = axios.create({
-      headers: {csrf: 'token'},
+      //headers: {csrf: 'token'},
       baseURL: "http://"+window.location.hostname+':'+process.env.API_PORT,
     });
     service.interceptors.response.use(this.handleSuccess, this.handleError);
@@ -15,6 +15,7 @@ class HTTPService {
   }
 
   handleError = (error) => {
+    /*
     switch (error.response.status) {
       case 401:
         this.redirectTo(document, '/')
@@ -27,6 +28,7 @@ class HTTPService {
         break;
     }
     return Promise.reject(error)
+    */
   }
 
   redirectTo = (document, path) => {
@@ -54,7 +56,7 @@ class HTTPService {
       url: path,
       responseType: 'json',
       data: payload
-    }).then((response) => callback(response.status, response.data));
+    }).then((response) => callback(response.status, response.data)).catch((error) => callback(error.status, error.data));
   }
 }
 

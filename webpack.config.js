@@ -38,8 +38,14 @@ module.exports = {
   resolve: {
     extensions: ['*', '.js', '.jsx'],
     alias: {
+      components: path.resolve(__dirname, 'src/components/'),
+      containers: path.resolve(__dirname, 'src/containers/'),
+      styles: path.resolve(__dirname, 'src/styles/'),
+      models: path.resolve(__dirname, 'src/models/'),
+      modals: path.resolve(__dirname, 'src/modals/'),
       utils: path.resolve(__dirname, 'src/utils/'),
       modals: path.resolve(__dirname, 'src/modals/'),
+      controllers: path.resolve(__dirname, 'src/controllers/'),
     }
   },
   output: {

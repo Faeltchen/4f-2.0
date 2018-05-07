@@ -2,7 +2,9 @@ import React from 'react';
 import * as BS from 'react-bootstrap';
 import { observer } from "mobx-react";
 
+import Login from "modals/login";
 import Register from "modals/register";
+import RegisterSuccess from "modals/registerSuccess";
 
 @observer
 export default class Navigation extends React.Component {
@@ -17,7 +19,7 @@ export default class Navigation extends React.Component {
       <BS.Navbar inverse collapseOnSelect>
         <BS.Navbar.Header>
           <BS.Navbar.Brand>
-            <a href="#brand">React-Bootstrap</a>
+            <a href="#brand">Penis</a>
           </BS.Navbar.Brand>
           <BS.Navbar.Toggle />
         </BS.Navbar.Header>
@@ -38,13 +40,15 @@ export default class Navigation extends React.Component {
             </BS.NavDropdown>
           </BS.Nav>
           <BS.Nav pullRight>
-            <BS.NavItem eventKey={1} href="#">
-              Login
+            <BS.NavItem eventKey={1} href="#" onClick={() => {this.props.store.modal.showModal("login"); }}>
+              <BS.Glyphicon glyph="log-in" />&nbsp;&nbsp;<span>Login</span>
             </BS.NavItem>
+            <Login store={this.props.store} />
             <BS.NavItem eventKey={2} href="#" onClick={() => {this.props.store.modal.showModal("register"); }}>
-              <span>Register</span>
+              <BS.Glyphicon glyph="user" />&nbsp;&nbsp;<span>Register</span>
             </BS.NavItem>
             <Register store={this.props.store} />
+            <RegisterSuccess store={this.props.store} />
           </BS.Nav>
         </BS.Navbar.Collapse>
       </BS.Navbar>
