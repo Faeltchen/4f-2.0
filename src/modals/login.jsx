@@ -25,24 +25,22 @@ export default class Login extends React.Component {
   }
 
   checkUsername() {
-    this.setState({usernameErrors: []});
-    if (this.state.username.trim().length >= 5 && this.state.username.trim().length <= 20) {
-      this.setState({usernameValidationState: 'success'});
+    if (this.state.username.trim().length == 0) {
+      this.setState({usernameValidationState: 'error'});
     }
     else {
-      this.setState({usernameValidationState: 'error'});
+      this.setState({usernameValidationState: 'success'});
     }
   }
 
   checkPassword() {
-    this.setState({passwordErrors: []});
-    if (this.state.password.length >= 8 && this.state.password.length <= 20) {
-      this.setState({passwordValidationState: 'success'});
-    }
-    else {
+    if(this.state.password.length == 0) {
       this.setState({passwordValidationState: 'error'});
     }
-   }
+    else {
+      this.setState({passwordValidationState: 'success'});
+    }
+  }
 
     submit(e) {
       var self = this;
@@ -51,30 +49,32 @@ export default class Login extends React.Component {
       this.checkUsername();
       this.checkPassword();
 
-      if(this.state.usernameValidationState == "success" &&
-      this.state.passwordValidationState == "success") {
+      if(this.state.usernameValidationState == "success" && this.state.passwordValidationState == "success") {
         HTTPService.post("/api/user/login", {
           username: this.state.username,
           password: this.state.password
         }, (status, data) => {
+          self.setState({passwordErrors: []});
+          self.setState({usernameErrors: []});
           if(data.success) {
-            sessionStorage.setItem("jwtToken", data.token);
+            self.props.store.user.setToken(data.token);
+            self.props.store.user.setUser(data.user);
+            self.props.store.modal.hideModal("login");
           }
           else {
-            if(data.username.length) {
+            if(data.errors.username.length) {
               self.setState({
-                usernameErrors: data.username,
+                usernameErrors: data.errors.username,
                 usernameValidationState: "warning",
               });
             }
-            if(data.password.length) {
+            if(data.errors.password.length) {
               self.setState({
-                passwordErrors: data.password,
+                passwordErrors: data.errors.password,
                 passwordValidationState: "warning"
               });
             }
           }
-          console.log(data);
         })
       }
     }
@@ -103,6 +103,9 @@ export default class Login extends React.Component {
                 </BS.Col>
                 <BS.Col lg={9} md={9} sm={9}>
                   <BS.HelpBlock>
+                    {this.state.usernameErrors.map(function(error, index){
+                      return <span key={ index }>● {error}</span>;
+                    })}
                   </BS.HelpBlock>
                 </BS.Col>
               </BS.Row>
@@ -123,7 +126,7 @@ export default class Login extends React.Component {
                 </BS.Col>
                 <BS.Col lg={9} md={9} sm={9}>
                   <BS.HelpBlock>
-                    {this.state.loginErrors.map(function(error, index){
+                    {this.state.passwordErrors.map(function(error, index){
                       return <span key={ index }>● {error}</span>;
                     })}
                   </BS.HelpBlock>

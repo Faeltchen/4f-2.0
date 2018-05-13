@@ -10,43 +10,24 @@ const secretToken = "ilovescotchyscotch";
 
 var router = express.Router();
 
-/*
 router.post('/authenticate', function (req, res) {
-  var errors = {
-    "username": [],
-    "password": [],
-  };
 
-  // find the user
-  User.findOne({
-    name: req.body.username
-  }, function(err, user) {
-    if (err) throw err;
-    if (!user) {
-      errors.username.push('Authentication failed. User not found.')
-    } else if (user) {
-
-      if (passwordHash.verify(req.body.password, user.password)) {
-
-        const payload = {
-          role: user.role
-        };
-
-        var token = jwt.sign(payload, secretToken, {
-          expiresIn: '2d' // expires in 24 hours
-        });
-
-        res.send({success: true, token: token})
-      } else {
-        errors.password.push('Authentication failed. Wrong password.');
-      }
-    }
-
-    res.send(errors);
-  });
+  try {
+    var decoded = jwt.verify(req.body.token, secretToken);
+    res.send({
+      success: true,
+      user: decoded,
+    });
+    console.log(decoded);
+  } catch(err) {
+    res.send({
+      success: false,
+    });
+  }
 });
-*/
+
 router.post('/login', function (req, res) {
+  var token;
   var errors = {
     "username": [],
     "password": [],
@@ -56,28 +37,27 @@ router.post('/login', function (req, res) {
   User.findOne({
     name: req.body.username
   }, function(err, user) {
-    if (err) throw err;
     if (!user) {
       errors.username.push('Authentication failed. User not found.')
     } else if (user) {
 
       if (passwordHash.verify(req.body.password, user.password)) {
-
         const payload = {
-          role: user.role
+          name: user.name,
+          role: user.role,
         };
-
-        var token = jwt.sign(payload, secretToken, {
+        token = jwt.sign(payload, secretToken, {
           expiresIn: '2d' // expires in 24 hours
         });
-
-        res.send({success: true, token: token})
       } else {
         errors.password.push('Authentication failed. Wrong password.');
       }
     }
 
-    res.send(errors);
+    if(errors.username.length || errors.password.length)
+      res.send({success: false, errors: errors});
+    else
+      res.send({success: true, token: token, user: jwt.verify(token, secretToken)});
   });
 });
 

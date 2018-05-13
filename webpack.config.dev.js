@@ -23,7 +23,10 @@ module.exports = merge(common, {
   devServer: {
     contentBase: './dist',
     disableHostCheck: true,   // That solved it
-    hot: true
+    hot: true,
+    stats: {
+      warnings: false
+    },
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
