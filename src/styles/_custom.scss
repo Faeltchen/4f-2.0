@@ -1,6 +1,95 @@
+// Navbar ======================================================================
+.navbar {
+  position: relative;
+  z-index: 2;
+}
+
 // Forms ======================================================================
 .control-label-inline {
   @media (min-width: $screen-sm-min) {
     padding-top: 7px;
+  }
+}
+
+// DropZone ======================================================================
+.dropzone {
+  position: relative;
+  padding: 50px 25px;
+  border: 2px rgb(102, 102, 102) dashed;
+
+  p {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 100%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+}
+
+#masonry-layout {
+
+}
+.wall {
+  position: absolute;
+  top: 52px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  z-index: 1;
+
+  &__brick {
+
+    div {
+      display: inline-block;
+      height: 100%;
+      border: 1px solid #fff;
+      background: rgba(0,0,0,0.7);
+    }
+
+    &--large {
+      height: 240px;
+
+      div {
+        width: 100%;
+      }
+    }
+    &--large-tight {
+      height: 160px;
+
+      div {
+        width: 100%;
+      }
+    }
+    &--large-verytight {
+      height: 80px;
+
+      div {
+        width: 100%;
+      }
+    }
+    &--medium {
+      height: 160px;
+
+      div {
+        width: 50%;
+      }
+    }
+    &--medium-tight {
+      height: 80px;
+
+      div {
+        width: 50%;
+      }
+    }
+    &--small {
+      height: 80px;
+
+      div {
+        width: 33.33%;
+      }
+    }
+
+
   }
 }

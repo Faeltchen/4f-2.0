@@ -6,7 +6,7 @@ import { hot } from 'react-hot-loader';
 import axios from 'axios';
 import HTTPService from 'utils/HTTPService';
 
-import Navigation from "./components/navigation";
+import Home from "containers/home";
 
 class App extends React.Component {
 
@@ -40,7 +40,7 @@ class App extends React.Component {
 
     return(
       <div>
-        <Navigation store={this.props.store}/>
+        <Home store={this.props.store}/>
       </div>
     );
   }

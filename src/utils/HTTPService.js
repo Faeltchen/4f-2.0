@@ -50,12 +50,13 @@ class HTTPService {
     }).then((response) => callback(response.status, response.data));
   }
 
-  post(path, payload, callback) {
+  post(path, payload, callback, onProgress) {
     return this.service.request({
       method: 'POST',
       url: path,
       responseType: 'json',
-      data: payload
+      data: payload,
+      onUploadProgress: onProgress,
     }).then((response) => callback(response.status, response.data)).catch((error) => callback(error.status, error.data));
   }
 }

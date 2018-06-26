@@ -3,6 +3,7 @@ import * as BS from 'react-bootstrap';
 import {observer} from 'mobx-react';
 import axios from 'axios';
 import HTTPService from 'utils/HTTPService';
+import FontAwesome from 'react-fontawesome';
 
 @observer
 export default class Login extends React.Component {
@@ -21,6 +22,7 @@ export default class Login extends React.Component {
       password: '',
       passwordErrors: [],
       passwordValidationState: null,
+      requestPending: false,
     };
   }
 
@@ -50,12 +52,14 @@ export default class Login extends React.Component {
       this.checkPassword();
 
       if(this.state.usernameValidationState == "success" && this.state.passwordValidationState == "success") {
+        this.setState({requestPending: true});
         HTTPService.post("/api/user/login", {
           username: this.state.username,
           password: this.state.password
         }, (status, data) => {
           self.setState({passwordErrors: []});
           self.setState({usernameErrors: []});
+          self.setState({requestPending: false});
           if(data.success) {
             self.props.store.user.setToken(data.token);
             self.props.store.user.setUser(data.user);
@@ -104,7 +108,7 @@ export default class Login extends React.Component {
                 <BS.Col lg={9} md={9} sm={9}>
                   <BS.HelpBlock>
                     {this.state.usernameErrors.map(function(error, index){
-                      return <span key={ index }>● {error}</span>;
+                      return <span key={ index }>{error}</span>;
                     })}
                   </BS.HelpBlock>
                 </BS.Col>
@@ -127,7 +131,7 @@ export default class Login extends React.Component {
                 <BS.Col lg={9} md={9} sm={9}>
                   <BS.HelpBlock>
                     {this.state.passwordErrors.map(function(error, index){
-                      return <span key={ index }>● {error}</span>;
+                      return <span key={ index }>{error}</span>;
                     })}
                   </BS.HelpBlock>
                 </BS.Col>
@@ -136,10 +140,18 @@ export default class Login extends React.Component {
           </BS.Modal.Body>
           <BS.Modal.Footer>
             <BS.Row>
-              <BS.Col lg={9} md={10} sm={10}>
+              <BS.Col lg={9} md={9} sm={9}>
               </BS.Col>
-              <BS.Col lg={3} md={2} sm={2}>
-                <BS.Button type="submit" >Submit</BS.Button>
+              <BS.Col lg={3} md={3} sm={3}>
+                {this.state.requestPending ? (
+                  <BS.Button style={{width: "100%", fontSize: "21px", paddingTop: "1px", paddingBottom: "1px"}}>
+                    <FontAwesome name='spinner' spin />
+                  </BS.Button>
+                ): (
+                  <BS.Button type="submit" style={{width: "100%"}}>
+                    Submit
+                  </BS.Button>
+                )}
               </BS.Col>
             </BS.Row>
           </BS.Modal.Footer>

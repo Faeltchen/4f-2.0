@@ -5,13 +5,12 @@ var validator = require('email-validator');
 var passwordHash = require('password-hash');
 var moment = require('moment-timezone');
 var jwt = require('jsonwebtoken');
-
+var autoIncrement = require('mongoose-auto-increment');
 const secretToken = "ilovescotchyscotch";
 
 var router = express.Router();
 
 router.post('/authenticate', function (req, res) {
-
   try {
     var decoded = jwt.verify(req.body.token, secretToken);
     res.send({
@@ -42,7 +41,9 @@ router.post('/login', function (req, res) {
     } else if (user) {
 
       if (passwordHash.verify(req.body.password, user.password)) {
+        console.log(user);
         const payload = {
+          id: user._id,
           name: user.name,
           role: user.role,
         };

@@ -4,6 +4,7 @@ import {observer} from 'mobx-react';
 import axios from 'axios';
 import HTTPService from 'utils/HTTPService';
 import validator from 'email-validator';
+import FontAwesome from 'react-fontawesome';
 
 @observer
 export default class Register extends React.Component {
@@ -28,7 +29,8 @@ export default class Register extends React.Component {
       passwordRepeat: '',
       passwordRepeatValidationState: null,
       agreement: '',
-      agreementValidationState: null
+      agreementValidationState: null,
+      requestPending: false,
     };
   }
 
@@ -95,11 +97,13 @@ export default class Register extends React.Component {
       this.state.passwordValidationState == "success" &&
       this.state.passwordRepeatValidationState == "success" &&
       this.state.agreement) {
+        self.setState({requestPending: true});
         HTTPService.post("/api/user/create", {
           username: this.state.username,
           email: this.state.email,
           password: this.state.password
         }, (status, data) => {
+          self.setState({requestPending: false});
           if(data.success) {
             self.props.store.modal.hideModal(this.modalName);
             self.props.store.modal.showModal("registerSuccess");
@@ -153,7 +157,7 @@ export default class Register extends React.Component {
                 <BS.Col lg={9} md={9} sm={9}>
                   <BS.HelpBlock>
                     {this.state.usernameErrors.map(function(error, index){
-                      return <span key={ index }>● {error}</span>;
+                      return <span key={ index }>{error}</span>;
                     })}
                   </BS.HelpBlock>
                 </BS.Col>
@@ -176,7 +180,7 @@ export default class Register extends React.Component {
                 <BS.Col lg={9} md={9} sm={9}>
                   <BS.HelpBlock>
                     {this.state.emailErrors.map(function(error, index){
-                      return <span key={ index }>● {error}</span>;
+                      return <span key={ index }>{error}</span>;
                     })}
                   </BS.HelpBlock>
                 </BS.Col>
@@ -199,7 +203,7 @@ export default class Register extends React.Component {
                 <BS.Col lg={9} md={9} sm={9}>
                   <BS.HelpBlock>
                     {this.state.passwordErrors.map(function(error, index){
-                      return <span key={ index }>● {error}</span>;
+                      return <span key={ index }>{error}</span>;
                     })}
                   </BS.HelpBlock>
                 </BS.Col>
@@ -233,10 +237,18 @@ export default class Register extends React.Component {
           </BS.Modal.Body>
           <BS.Modal.Footer>
             <BS.Row>
-              <BS.Col lg={9} md={10} sm={10}>
+              <BS.Col lg={9} md={9} sm={9}>
               </BS.Col>
-              <BS.Col lg={3} md={2} sm={2}>
-                <BS.Button type="submit" >Submit</BS.Button>
+              <BS.Col lg={3} md={3} sm={3}>
+                {this.state.requestPending ? (
+                  <BS.Button style={{width: "100%", fontSize: "21px", paddingTop: "1px", paddingBottom: "1px"}}>
+                    <FontAwesome name='spinner' spin />
+                  </BS.Button>
+                ): (
+                  <BS.Button type="submit" style={{width: "100%"}}>
+                    Submit
+                  </BS.Button>
+                )}
               </BS.Col>
             </BS.Row>
           </BS.Modal.Footer>
