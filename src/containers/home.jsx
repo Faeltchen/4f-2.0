@@ -12,7 +12,7 @@ class Home extends React.Component {
   render() {
     return(
       <div>
-        <Navigation store={this.props.store}/>
+        <Navigation />
         <Wall />
       </div>
     );

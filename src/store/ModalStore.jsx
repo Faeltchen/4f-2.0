@@ -22,11 +22,6 @@ class ModalStore {
   }
 
   @action
-  addTest(name) {
-    this.test = name;
-  }
-
-  @action
   initModal(modalName) {
     if(typeof this.modals[modalName] == "undefined") {
       this.modals[modalName] = observable({
@@ -46,18 +41,6 @@ class ModalStore {
   hideModal(modalName) {
     set(this.modals[modalName], {show: false});
   }
-
-  /*
-  @computed
-  get unfinishedTodoCount() {
-    return this.todos.filter(todo => !todo.finished).length;
-  }
-
-  @action
-  addTodo(title) {
-    this.todos.push(new TodoModel(title));
-  }
-  */
 }
 
 

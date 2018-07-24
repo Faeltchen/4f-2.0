@@ -1,6 +1,6 @@
 import React from 'react';
 import * as BS from 'react-bootstrap';
-import { observer } from "mobx-react";
+import { observer, inject } from "mobx-react";
 import FontAwesome from "react-fontawesome";
 
 import UploadImage from "modals/uploadImage";
@@ -8,6 +8,7 @@ import Login from "modals/login";
 import Register from "modals/register";
 import RegisterSuccess from "modals/registerSuccess";
 
+@inject('store')
 @observer
 export default class Navigation extends React.Component {
   constructor(props) {
@@ -19,7 +20,7 @@ export default class Navigation extends React.Component {
       <BS.Navbar inverse collapseOnSelect>
         <BS.Navbar.Header>
           <BS.Navbar.Brand>
-            <a href="#brand">4fickr</a>
+            <a href="/">4fickr</a>
           </BS.Navbar.Brand>
           <BS.Navbar.Toggle />
         </BS.Navbar.Header>

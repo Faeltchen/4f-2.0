@@ -37,7 +37,8 @@ router.post('/login', function (req, res) {
     name: req.body.username
   }, function(err, user) {
     if (!user) {
-      errors.username.push('Authentication failed. User not found.')
+      errors.username.push('Authentication failed. User not found.');
+      errors.password.push(' ');
     } else if (user) {
 
       if (passwordHash.verify(req.body.password, user.password)) {

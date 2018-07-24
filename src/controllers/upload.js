@@ -1,17 +1,20 @@
-var express = require('express');
-var mongoose = require('mongoose');
-var moment = require('moment-timezone');
-var fs = require('fs');
-var jwt = require('jsonwebtoken');
-var multer  = require('multer');
-var imagemin = require('imagemin');
-var imageminJpegtran = require('imagemin-jpegtran');
-var imageminPngquant = require('imagemin-pngquant');
-var path = require('path');
-var randomstring = require("randomstring");
+const express = require('express');
+const mongoose = require('mongoose');
+const moment = require('moment-timezone');
+const fs = require('fs');
+const jwt = require('jsonwebtoken');
+const multer  = require('multer');
+const imagemin = require('imagemin');
+const imageminJpegtran = require('imagemin-jpegtran');
+const imageminPngquant = require('imagemin-pngquant');
+const path = require('path');
+const randomstring = require("randomstring");
+const thumb = require('node-thumbnail').thumb;
+const ThumbnailGenerator = require('video-thumbnail-generator').default
+const sizeOf = require('image-size');
 
-var Content = require("../models/content");
-var Image = require("../models/image");
+const Content = require("../models/content");
+const Image = require("../models/image");
 
 const secretToken = "ilovescotchyscotch";
 
@@ -51,39 +54,94 @@ router.post('/image', upload.single('mainImage'), function (req, res) {
       if (req.file) {
         const outputDirecory = "../uploads/" + decoded.id;
 
-        if (!fs.existsSync(outputDirecory)){
+        var dt = new Date();
+        var dateString = '/' + dt.getDate() + (dt.getMonth() + 1) + dt.getFullYear();
+
+        if (!fs.existsSync(outputDirecory))
             fs.mkdirSync(outputDirecory);
+        if (!fs.existsSync(outputDirecory + dateString))
+            fs.mkdirSync(outputDirecory + dateString);
+        if (!fs.existsSync(outputDirecory + dateString + '/thumb'))
+            fs.mkdirSync(outputDirecory + dateString + '/thumb');
+
+        var extension = path.extname(req.file.originalname);
+        var dimensions = sizeOf(req.file.path);
+
+        if(extension =='.gif') {
+          fs.rename(req.file.path, outputDirecory + dateString + '/' + req.file.filename, function (err) {
+            if (err) throw err;
+            console.log('Move complete.');
+            const tg = new ThumbnailGenerator({
+              sourcePath: outputDirecory + dateString + '/' + req.file.filename,
+              thumbnailPath: outputDirecory + dateString + '/thumb/',
+            });
+
+            tg.generate({
+              size: '200x?',
+              filename: req.file.filename.replace(/\.[^/.]+$/, "") + '.png',
+              timestamps: ['0'],
+            }).then(console.log);
+
+            var createdImage = new Image({
+              filename: req.file.filename.replace(/\.[^/.]+$/, "") + '.png',
+              originalname: req.file.originalname,
+              path: decoded.id + dateString,
+              size: req.file.size
+            });
+
+            createdImage.save(function(err, image) {
+
+              var createdContent = new Content({
+                image: image._id,
+                user: decoded.id,
+                date: moment().format(),
+              });
+
+              createdContent.save(function(err, content) {
+                //console.log(err);
+              });
+            });
+          });
         }
-
-        imagemin([req.file.path], outputDirecory, {
-          plugins: [
-            imageminJpegtran(),
-            imageminPngquant({quality: '65-80'})
-          ]
-        }).then(files => {
-          var createdImage = new Image({
-            filename: req.file.filename,
-            originalname: req.file.originalname,
-            path: outputDirecory,
-            size: req.file.size
-          });
-
-          createdImage.save(function(err, image) {
-            var createdContent = new Content({
-              type: "image",
-              reference: image.id,
-              date: moment().format(),
+        else {
+          imagemin([req.file.path], (outputDirecory + dateString), {
+            plugins: [
+              imageminJpegtran(),
+              imageminPngquant({quality: '65-80'})
+            ]
+          }).then(files => {
+            thumb({
+              suffix: '',
+              source: outputDirecory + dateString + '/' + req.file.filename,
+              destination: outputDirecory + dateString + '/thumb/',
+              concurrency: 4,
+              width: 200,
+            }, function(files, err, stdout, stderr) {
+              console.log('All done!');
             });
 
-            createdContent.save(function(err, content) {
-
+            var createdImage = new Image({
+              filename: req.file.filename,
+              originalname: req.file.originalname,
+              path: decoded.id + dateString,
+              width: dimensions.width,
+              height: dimensions.height,
+              size: req.file.size
             });
-          });
 
-          fs.unlinkSync(req.file.path);
-        }).catch(error => {
-          console.log(error);
-        });
+            createdImage.save(function(err, image) {
+              var createdContent = new Content({
+                user: decoded.id,
+                image: image._id,
+                date: moment().format(),
+              });
+
+              createdContent.save();
+            });
+
+            fs.unlinkSync(req.file.path);
+          });
+        }
       }
       else {
         errors.mainImage.push("No file received");
@@ -103,5 +161,34 @@ router.post('/image', upload.single('mainImage'), function (req, res) {
     })
   }
 });
+
+function move(oldPath, newPath, callback) {
+
+  fs.rename(oldPath, newPath, function (err) {
+    if (err) {
+        if (err.code === 'EXDEV') {
+            copy();
+        } else {
+            callback(err);
+        }
+        return;
+    }
+    callback();
+  });
+
+  function copy() {
+    var readStream = fs.createReadStream(oldPath);
+    var writeStream = fs.createWriteStream(newPath);
+
+    readStream.on('error', callback);
+    writeStream.on('error', callback);
+
+    readStream.on('close', function () {
+        fs.unlink(oldPath, callback);
+    });
+
+    readStream.pipe(writeStream);
+  }
+}
 
 module.exports = router;

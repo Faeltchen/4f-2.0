@@ -145,10 +145,11 @@ export default class Register extends React.Component {
                 <BS.Col lg={3} md={3} sm={3}>
                   <BS.ControlLabel className={"control-label-inline"}>Username</BS.ControlLabel>
                 </BS.Col>
-                <BS.Col lg={9} md={9} sm={9}>
+                <BS.Col lg={9} md={9} sm={9} style={{position: 'initial'}}>
                   <BS.FormControl type="text" value={this.state.username} placeholder="Enter name from 5 to 20 characters"
                   onBlur={this.checkUsername.bind(this)}
                   onChange={e => this.setState({ username: e.target.value })} />
+                  <BS.FormControl.Feedback />
                 </BS.Col>
               </BS.Row>
               <BS.Row>
@@ -168,10 +169,11 @@ export default class Register extends React.Component {
                 <BS.Col lg={3} md={3} sm={3}>
                   <BS.ControlLabel className={"control-label-inline"}>Email address</BS.ControlLabel>
                 </BS.Col>
-                <BS.Col lg={9} md={9} sm={9}>
+                <BS.Col lg={9} md={9} sm={9} style={{position: 'initial'}}>
                   <BS.FormControl type="email" value={this.state.email} placeholder="Enter email"
                   onBlur={this.checkEmail.bind(this)}
                   onChange={e => this.setState({ email: e.target.value })} />
+                  <BS.FormControl.Feedback />
                 </BS.Col>
               </BS.Row>
               <BS.Row>
@@ -191,10 +193,11 @@ export default class Register extends React.Component {
                 <BS.Col lg={3} md={3} sm={3}>
                   <BS.ControlLabel className={"control-label-inline"}>Password</BS.ControlLabel>
                 </BS.Col>
-                <BS.Col lg={9} md={9} sm={9}>
+                <BS.Col lg={9} md={9} sm={9} style={{position: 'initial'}}>
                   <BS.FormControl type="password" placeholder="Enter password from 8 to 20 characters" value={this.state.password}
                   onBlur={this.checkPassword.bind(this)}
                   onChange={e => this.setState({ password: e.target.value })} />
+                  <BS.FormControl.Feedback />
                 </BS.Col>
               </BS.Row>
               <BS.Row>
@@ -214,10 +217,11 @@ export default class Register extends React.Component {
                 <BS.Col lg={3} md={3} sm={3}>
                   <BS.ControlLabel className={"control-label-inline"}>Repeat password</BS.ControlLabel>
                 </BS.Col>
-                <BS.Col lg={9} md={9} sm={9}>
+                <BS.Col lg={9} md={9} sm={9} style={{position: 'initial'}}>
                   <BS.FormControl type="password" value={this.state.passwordRepeat}
                   onBlur={this.checkPasswordRepeat.bind(this)}
                   onChange={e => this.setState({ passwordRepeat: e.target.value })} />
+                  <BS.FormControl.Feedback />
                 </BS.Col>
               </BS.Row>
               <BS.Row>
@@ -236,21 +240,32 @@ export default class Register extends React.Component {
             </BS.FormGroup>
           </BS.Modal.Body>
           <BS.Modal.Footer>
-            <BS.Row>
-              <BS.Col lg={9} md={9} sm={9}>
-              </BS.Col>
-              <BS.Col lg={3} md={3} sm={3}>
-                {this.state.requestPending ? (
-                  <BS.Button style={{width: "100%", fontSize: "21px", paddingTop: "1px", paddingBottom: "1px"}}>
+            {this.state.requestPending ? (
+              <BS.Row>
+                <BS.Col lg={9} md={9} sm={9} xs={7}>
+                </BS.Col>
+                <BS.Col lg={3} md={3} sm={3} xs={5}>
+                  <BS.Button bsStyle="primary" style={{width: "100%", fontSize: "21px", paddingTop: "1px", paddingBottom: "1px"}}>
                     <FontAwesome name='spinner' spin />
                   </BS.Button>
-                ): (
-                  <BS.Button type="submit" style={{width: "100%"}}>
+                </BS.Col>
+              </BS.Row>
+            ): (
+              <BS.Row>
+                <BS.Col lg={7} md={7} sm={7} xs={3}>
+                </BS.Col>
+                <BS.Col lg={2} md={2} sm={2} xs={4} style={{paddingRight: 0}}>
+                  <BS.Button style={{width: "100%"}} onClick={() => {this.props.store.modal.hideModal(this.modalName);}}>
+                    Cancel
+                  </BS.Button>
+                </BS.Col>
+                <BS.Col lg={3} md={3} sm={3} xs={5}>
+                  <BS.Button type="submit" bsStyle="primary" style={{width: "100%"}}>
                     Submit
                   </BS.Button>
-                )}
-              </BS.Col>
-            </BS.Row>
+                </BS.Col>
+              </BS.Row>
+            )}
           </BS.Modal.Footer>
         </form>
       </BS.Modal>

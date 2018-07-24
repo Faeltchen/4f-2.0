@@ -92,6 +92,45 @@ a.btn {
 // Link buttons
 // -------------------------
 
+.btn-action {
+  font-size: 14px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  transition: all 0.2s ease-in;
+  color: $brand-primary;
+  border-color: $brand-primary;
+  background: transparent;
+
+  .badge {
+    color: $brand-primary;
+    background-color: $brand-primary;
+  }
+
+  &:focus,
+  &.focus,
+  &:hover {
+    color: #fff;
+    border-color: #fff;
+    background: transparent;
+  }
+
+  &:active,
+  &.active,
+  .open > &.dropdown-toggle {
+    color: #fff;
+    border-color: #fff;
+    background: transparent;
+
+    &:hover,
+    &:focus,
+    &.focus {
+      color: #fff;
+      border-color: #fff;
+      background: transparent;
+    }
+  }
+}
+
 // Make a button look and behave like a link
 .btn-link {
   color: $link-color;

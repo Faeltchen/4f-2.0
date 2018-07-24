@@ -10,9 +10,7 @@ module.exports = mongoose.model('Image', new Schema({
     filename: String,
     originalname: String,
     path: String,
-    /*
     width: Number,
     height: Number,
-    */
     size: Number,
 }).plugin(autoIncrement.plugin, 'Image'));

@@ -4,8 +4,10 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const merge = require('webpack-merge');
 const common = require('./webpack.config.js');
+const express = require('express')
 
 var spawn = require('child_process').spawn;
+//spawn('node', ['./src/StaticServer.js']);
 //spawn('node', ['./src/APIServer.js']);
 
 module.exports = merge(common, {
@@ -23,9 +25,13 @@ module.exports = merge(common, {
   devServer: {
     contentBase: './dist',
     disableHostCheck: true,   // That solved it
+    historyApiFallback: true,
     hot: true,
     stats: {
       warnings: false
+    },
+    setup: function(app) {
+      app.use('/uploads', express.static('./uploads'));
     },
   },
   plugins: [

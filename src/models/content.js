@@ -7,7 +7,7 @@ autoIncrement.initialize(mongoose.connection);
 
 // set up a mongoose model and pass it using module.exports
 module.exports = mongoose.model('Content', new Schema({
-    type: String,
-    reference: Number,
+    user: { type: Number, ref: 'User' },
+    image: { type: Number, ref: 'Image' },
     date: Date,
 }).plugin(autoIncrement.plugin, 'Content'));

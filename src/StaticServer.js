@@ -3,6 +3,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 80;
 
-var path = require('path');
+app.use('/uploads', express.static(__dirname +'/../uploads'))
+app.listen(port);
 
-app.use(express.static(__dirname +'./../dist/')); //serves the index.html
+//app.use('/uploads', express.static(__dirname +'./../uploads')); //serves the index.html

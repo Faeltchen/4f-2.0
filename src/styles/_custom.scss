@@ -1,3 +1,10 @@
+html, body, .modal {
+  min-width: 320px;        /* Suppose you want minimum width of 1000px */
+  width: auto !important;  /* Firefox will set width as auto */
+  width: 320px;
+  //overflow-x: scroll;
+}
+
 // Navbar ======================================================================
 .navbar {
   position: relative;
@@ -6,30 +13,74 @@
 
 // Forms ======================================================================
 .control-label-inline {
-  @media (min-width: $screen-sm-min) {
-    padding-top: 7px;
-  }
+  padding-top: 7px;
+  color: #fff !important;
 }
 
-// DropZone ======================================================================
-.dropzone {
-  position: relative;
-  padding: 50px 25px;
-  border: 2px rgb(102, 102, 102) dashed;
+// Grid ======================================================================
+.col-center {
+  margin: 0 auto;
+  float: none;
+}
 
-  p {
-    position: absolute;
-    left: 50%;
-    top: 50%;
+// Modals ======================================================================
+.uploadImage {
+
+  &__dropzone {
+    position: relative;
+    padding: 70px 25px;
+    border: 2px #fff dashed;
+
+    p {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 100%;
+      padding: 13px;
+      margin: 0;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      font-size: 15px;
+    }
+  }
+  &__previewImage {
+    height: 80px;
+    border-radius: 10px;
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  &__delete {
+    font-size: 16px;
+    cursor: pointer;
+  }
+  table {
     width: 100%;
-    transform: translate(-50%, -50%);
-    text-align: center;
+
+    tr:first-child {
+      td:nth-child(1) {
+        width: 15%;
+      }
+      td:nth-child(2) {
+        width: 65%;
+        font-size: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      td:nth-child(3) {
+        width: 20%;
+      }
+    }
+    td + td {
+      padding-left: $grid-gutter-width / 2;
+    }
+  }
+  .progress {
+    margin: 0 0 0 ($grid-gutter-width / 2);
   }
 }
 
-#masonry-layout {
-
-}
+// Wall ======================================================================
 .wall {
   position: absolute;
   top: 52px;
@@ -43,8 +94,16 @@
     div {
       display: inline-block;
       height: 100%;
-      border: 1px solid #fff;
+      border: 1px solid #222;
       background: rgba(0,0,0,0.7);
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      cursor: pointer;
+
+      &:hover {
+        border-color: #ddd;
+      }
     }
 
     &--large {
@@ -89,7 +148,5 @@
         width: 33.33%;
       }
     }
-
-
   }
 }

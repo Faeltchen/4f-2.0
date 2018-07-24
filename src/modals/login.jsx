@@ -93,19 +93,20 @@ export default class Login extends React.Component {
           <BS.Modal.Body>
             <BS.FormGroup className controlId="usernameLogin" validationState={this.state.usernameValidationState}>
               <BS.Row>
-                <BS.Col lg={3} md={3} sm={3}>
+                <BS.Col lg={3} md={3} sm={3} xs={4}>
                   <BS.ControlLabel className={"control-label-inline"}>Username</BS.ControlLabel>
                 </BS.Col>
-                <BS.Col lg={9} md={9} sm={9}>
+                <BS.Col lg={9} md={9} sm={9} xs={8} style={{position: 'initial'}}>
                   <BS.FormControl type="text" value={this.state.username} placeholder=""
                   onBlur={this.checkUsername.bind(this)}
                   onChange={e => this.setState({ username: e.target.value })} />
+                  <BS.FormControl.Feedback />
                 </BS.Col>
               </BS.Row>
               <BS.Row>
-                <BS.Col lg={3} md={3} sm={3}>
+                <BS.Col lg={3} md={3} sm={3} xs={4}>
                 </BS.Col>
-                <BS.Col lg={9} md={9} sm={9}>
+                <BS.Col lg={9} md={9} sm={9} xs={8}>
                   <BS.HelpBlock>
                     {this.state.usernameErrors.map(function(error, index){
                       return <span key={ index }>{error}</span>;
@@ -116,19 +117,20 @@ export default class Login extends React.Component {
             </BS.FormGroup>
             <BS.FormGroup className controlId="passwordLogin" validationState={this.state.passwordValidationState}>
               <BS.Row>
-                <BS.Col lg={3} md={3} sm={3}>
+                <BS.Col lg={3} md={3} sm={3} xs={4}>
                   <BS.ControlLabel className={"control-label-inline"}>Password</BS.ControlLabel>
                 </BS.Col>
-                <BS.Col lg={9} md={9} sm={9}>
+                <BS.Col lg={9} md={9} sm={9} xs={8} style={{position: 'initial'}}>
                   <BS.FormControl type="password" placeholder="" value={this.state.password}
                   onBlur={this.checkPassword.bind(this)}
                   onChange={e => this.setState({ password: e.target.value })} />
+                  <BS.FormControl.Feedback />
                 </BS.Col>
               </BS.Row>
               <BS.Row>
-                <BS.Col lg={3} md={3} sm={3}>
+                <BS.Col lg={3} md={3} sm={3} xs={4}>
                 </BS.Col>
-                <BS.Col lg={9} md={9} sm={9}>
+                <BS.Col lg={9} md={9} sm={9} xs={8}>
                   <BS.HelpBlock>
                     {this.state.passwordErrors.map(function(error, index){
                       return <span key={ index }>{error}</span>;
@@ -139,21 +141,32 @@ export default class Login extends React.Component {
             </BS.FormGroup>
           </BS.Modal.Body>
           <BS.Modal.Footer>
-            <BS.Row>
-              <BS.Col lg={9} md={9} sm={9}>
-              </BS.Col>
-              <BS.Col lg={3} md={3} sm={3}>
-                {this.state.requestPending ? (
-                  <BS.Button style={{width: "100%", fontSize: "21px", paddingTop: "1px", paddingBottom: "1px"}}>
+            {this.state.requestPending ? (
+              <BS.Row>
+                <BS.Col lg={9} md={9} sm={9} xs={7}>
+                </BS.Col>
+                <BS.Col lg={3} md={3} sm={3} xs={5}>
+                  <BS.Button bsStyle="primary" style={{width: "100%", fontSize: "21px", paddingTop: "1px", paddingBottom: "1px"}}>
                     <FontAwesome name='spinner' spin />
                   </BS.Button>
-                ): (
-                  <BS.Button type="submit" style={{width: "100%"}}>
+                </BS.Col>
+              </BS.Row>
+            ): (
+              <BS.Row>
+                <BS.Col lg={7} md={7} sm={7} xs={3}>
+                </BS.Col>
+                <BS.Col lg={2} md={2} sm={2} xs={4} style={{paddingRight: 0}}>
+                  <BS.Button style={{width: "100%"}} onClick={() => {this.props.store.modal.hideModal(this.modalName);}}>
+                    Cancel
+                  </BS.Button>
+                </BS.Col>
+                <BS.Col lg={3} md={3} sm={3} xs={5}>
+                  <BS.Button type="submit" bsStyle="primary" style={{width: "100%"}}>
                     Submit
                   </BS.Button>
-                )}
-              </BS.Col>
-            </BS.Row>
+                </BS.Col>
+              </BS.Row>
+            )}
           </BS.Modal.Footer>
         </form>
       </BS.Modal>

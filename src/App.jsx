@@ -1,13 +1,16 @@
 import React from 'react';
 import * as BS from 'react-bootstrap';
 import { observable, action } from "mobx";
-import { observer } from "mobx-react";
+import { observer, inject } from "mobx-react";
 import { hot } from 'react-hot-loader';
 import axios from 'axios';
 import HTTPService from 'utils/HTTPService';
+import { Switch, Route } from 'react-router-dom';
 
 import Home from "containers/home";
+import Content from "containers/content";
 
+@inject('store')
 class App extends React.Component {
 
   constructor(props) {
@@ -24,8 +27,7 @@ class App extends React.Component {
         }
         else {
           console.log("=> AUTHENTIFICATION FAILED");
-          self.props.store.user.setToken("");
-          self.props.store.user.setUser({});
+          self.props.store.user.clearUser();
         }
       });
     }
@@ -40,7 +42,10 @@ class App extends React.Component {
 
     return(
       <div>
-        <Home store={this.props.store}/>
+        <Switch>
+          <Route exact path='/' component={Home}/>
+          <Route exact path='/content/:id' component={Content}/>
+        </Switch>
       </div>
     );
   }
