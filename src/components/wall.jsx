@@ -17,7 +17,7 @@ export default class Wall extends React.Component {
 
   state = {
     brickWidth: ((100 / Math.floor(document.body.clientWidth / defaultBrickSize)) / 100) *  document.body.clientWidth,
-    perPage: 60,
+    perPage: 20,
     wallContent: [],
     data: [],
     offset: 0

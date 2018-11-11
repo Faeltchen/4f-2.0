@@ -9,5 +9,6 @@ autoIncrement.initialize(mongoose.connection);
 module.exports = mongoose.model('Content', new Schema({
     user: { type: Number, ref: 'User' },
     image: { type: Number, ref: 'Image' },
+    isReference: { type: Boolean },
     date: Date,
 }).plugin(autoIncrement.plugin, 'Content'));

@@ -6,7 +6,12 @@ import BEMHelper from 'react-bem-helper';
 import HTTPService from 'utils/HTTPService';
 import Dropzone from 'react-dropzone';
 import FontAwesome from 'react-fontawesome';
-import _ from "lodash";
+import _ from 'lodash';
+import path from 'path';
+
+import { imageUpload as imageUploadErrors } from 'constants/errorCodes';
+import globalConfig from 'configs/global.js';
+import { bytesToSize } from 'helpers/files';
 
 var classes = new BEMHelper("uploadImage");
 
@@ -15,6 +20,8 @@ const initialState = {
   mainImageErrors: [],
   mainImageProgress: 0,
   mainImageValidationState: null,
+  addCommentOpen: false,
+  addComment: '',
   requestPending: false,
 };
 
@@ -31,12 +38,6 @@ export default class UploadImage extends React.Component {
     this.state = initialState;
   }
 
-  onDrop(image) {
-    this.setState({
-      mainImage: image
-    });
-  }
-
   closeModal() {
     this.setState(initialState);
     this.props.store.modal.hideModal(this.modalName);
@@ -47,24 +48,51 @@ export default class UploadImage extends React.Component {
     e.preventDefault()
 
     if(_.isEmpty(this.state.mainImage)) {
-      self.setState(prevState => ({
-        mainImageErrors: [...prevState.mainImageErrors, "Please select a main image file."]
-      }))
+      self.setState({mainImageErrors: [imageUploadErrors.EMPTY_FILE]});
     }
-    else {
+
+    if(!this.state.mainImageErrors.length) {
       this.setState({requestPending: true});
       var data = new FormData();
       data.append('token', this.props.store.user.token);
       data.append('mainImage', this.state.mainImage[0]);
+      data.append('isReference', false);
       self.setState({mainImageErrors: []});
+
       HTTPService.post("/api/upload/image", data, (status, response) => {
-        this.setState({requestPending: false});
-        if(response.success) {
+        console.log(response);
+
+        new Promise((resolve, reject) => {
+          if(response.success) {
+            if(self.state.addComment == '') {
+              resolve('success');
+            }
+            else {
+              HTTPService.post("/api/content/comment", {
+                token: this.props.store.user.token,
+                content_id: response.content_id,
+                addComment: this.state.addComment,
+              }, (status, response) => {
+                if(response.success) {
+                  resolve('success');
+                }
+                else {
+                  reject(response.errors.token);
+                }
+              })
+            }
+          }
+          else {
+            reject(response.errors.token);
+          }
+        }).then(function(value) {
           setTimeout(function() {
-              this.props.store.modal.hideModal(this.modalName);
-              location.reload();
-          }.bind(this), 1000)
-        }
+            self.props.store.modal.hideModal(self.modalName);
+            location.reload();
+          }.bind(this), 500);
+        }, function(errors) {
+          self.setState({mainImageErrors: [...response.errors.mainImage, ...errors]});
+        });
       }, function(progressEvent) {
         self.setState({
           mainImageProgress: Math.round( (progressEvent.loaded * 100) / progressEvent.total )
@@ -72,6 +100,27 @@ export default class UploadImage extends React.Component {
       });
     }
   }
+
+  onDrop(image) {
+    this.setState({
+      mainImage: image
+    });
+    this.setState({mainImageErrors: initialState.mainImageErrors});
+  }
+
+  onDropRejected(rejectedImage) {
+    let mainImageErrors = []
+
+    if(rejectedImage[0].size > (globalConfig.imageUpload.maxFileSizeInBytes)) {
+      mainImageErrors.push(imageUploadErrors.LIMIT_FILE_SIZE);
+    }
+    if(!_.includes(globalConfig.imageUpload.allowedFileTypes, path.extname(rejectedImage[0].name))) {
+      mainImageErrors.push(imageUploadErrors.BAD_FILETYPE);
+    }
+
+    this.setState({mainImageErrors: mainImageErrors});
+  }
+
 //accept="image/*"
    render() {
      return (
@@ -84,7 +133,11 @@ export default class UploadImage extends React.Component {
             <BS.FormGroup className controlId="mainImageUpload" validationState={this.state.mainImageValidationState}>
               {_.isEmpty(this.state.mainImage) ? (
                 <div>
-                  <Dropzone multiple={false} onDrop={this.onDrop.bind(this)}
+                  <Dropzone multiple={false}
+                  accept={globalConfig.imageUpload.allowedFileTypes.join()}
+                  maxSize={globalConfig.imageUpload.maxFileSizeInBytes}
+                  onDrop={this.onDrop.bind(this)}
+                  onDropRejected={this.onDropRejected.bind(this)}
                   className={"uploadImage__dropzone"}
                   activeClassName={"dropzone--active"}
                   acceptClassName={"dropzone--accept"}
@@ -93,16 +146,17 @@ export default class UploadImage extends React.Component {
                     <p>
                       Try dropping some files here, or click to select files to upload.<br/><br/>
                       <span><strong>Max filesize:</strong> 1MB</span><br/>
-                      <span><strong>Supported formats</strong>: .gif, .jpg and .png</span>
+                      <span>
+                        <strong>Supported formats:</strong>
+                        {globalConfig.imageUpload.allowedFileTypes.map(function(fileType, index){
+                          if(index == (globalConfig.imageUpload.allowedFileTypes.length - 1))
+                            return (<span key={'filetype-' + index}> and {fileType}</span>);
+                          else
+                            return (<span key={'filetype-' + index}> {fileType},</span>);
+                        })}
+                      </span>
                     </p>
                   </Dropzone>
-                  <br/>
-                  <p>By uploading a file you agree to the terms and conditions of 4fickr. Otherwise you will be punished and arrested in guantanamo bay.</p>
-                  <BS.HelpBlock bsClass={'text-danger'}>
-                    {this.state.mainImageErrors.map(function(error, index){
-                      return <span key={ index }>● {error}</span>;
-                    })}
-                  </BS.HelpBlock>
                 </div>
               ) : (
                 <div>
@@ -123,16 +177,31 @@ export default class UploadImage extends React.Component {
                           <tr>
                             <td><BS.ProgressBar now={this.state.mainImageProgress} label={this.state.mainImageProgress+'%'}  /></td>
                             <td style={{textAlign: 'right'}}>
-                              <span>{this.bytesToSize((this.state.mainImageProgress * this.state.mainImage[0].size) / 100, false)}</span> / <span>{this.bytesToSize(this.state.mainImage[0].size, true)}</span>
+                              <span>{bytesToSize((this.state.mainImageProgress * this.state.mainImage[0].size) / 100, false, 2, 2)}</span> / <span>{bytesToSize(this.state.mainImage[0].size, true, 2, 2)}</span>
                             </td>
                           </tr>
                         </tbody>
                       </table>
                     </BS.Col>
                   </BS.Row>
-                  <br/>
                 </div>
               )}
+              <div {...classes('addComment', {'open': this.state.addCommentOpen})} >
+                <BS.FormGroup className controlId="addComment">
+                  <BS.FormControl
+                    disabled={this.state.requestPending}
+                    onClick={() => this.setState({addCommentOpen: true})}
+                    onChange={e => this.setState({addComment: e.target.value })}
+                    value={this.state.addComment} placeholder={this.state.addCommentOpen ? 'enter comment' : 'click or press c to enter comment'} componentClass="textarea"  />
+                </BS.FormGroup>
+              </div>
+
+              <p>By uploading a file you agree to the terms and conditions of 4fickr. Otherwise you will be punished and arrested in guantanamo bay.</p>
+              <BS.HelpBlock bsClass={'text-danger'}>
+                {this.state.mainImageErrors.map(function(error, index){
+                  return <div key={ index }>● {error}</div>;
+                })}
+              </BS.HelpBlock>
             </BS.FormGroup>
           </BS.Modal.Body>
           <BS.Modal.Footer>
@@ -167,10 +236,4 @@ export default class UploadImage extends React.Component {
       </BS.Modal>
      );
    }
-  bytesToSize(bytes, withExtension) {
-    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    if (bytes == 0) return '0 Byte';
-    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
-    return Math.round(bytes / Math.pow(1024, i), 2) + (withExtension ? (' ' + sizes[i]) : '');
-  }
 }

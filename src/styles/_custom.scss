@@ -8,6 +8,7 @@ html, body, .modal {
 // Navbar ======================================================================
 .navbar {
   position: relative;
+  box-shadow: 0 8px 12px -6px rgba(0, 0, 0, 0.6);
   z-index: 2;
 }
 
@@ -29,6 +30,7 @@ html, body, .modal {
   &__dropzone {
     position: relative;
     padding: 70px 25px;
+    margin-bottom: 15px;
     border: 2px #fff dashed;
 
     p {
@@ -50,6 +52,7 @@ html, body, .modal {
     background-size: cover;
     background-repeat: no-repeat;
   }
+
   &__delete {
     font-size: 16px;
     cursor: pointer;

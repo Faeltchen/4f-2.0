@@ -27,20 +27,22 @@ export default class Login extends React.Component {
   }
 
   checkUsername() {
+    this.setState({usernameErrors: []});
     if (this.state.username.trim().length == 0) {
       this.setState({usernameValidationState: 'error'});
     }
     else {
-      this.setState({usernameValidationState: 'success'});
+      this.setState({usernameValidationState: null});
     }
   }
 
   checkPassword() {
+    this.setState({passwordErrors: []});
     if(this.state.password.length == 0) {
       this.setState({passwordValidationState: 'error'});
     }
     else {
-      this.setState({passwordValidationState: 'success'});
+      this.setState({passwordValidationState: null});
     }
   }
 
@@ -51,7 +53,7 @@ export default class Login extends React.Component {
       this.checkUsername();
       this.checkPassword();
 
-      if(this.state.usernameValidationState == "success" && this.state.passwordValidationState == "success") {
+      if(this.state.usernameValidationState == null && this.state.passwordValidationState == null) {
         this.setState({requestPending: true});
         HTTPService.post("/api/user/login", {
           username: this.state.username,
@@ -143,8 +145,10 @@ export default class Login extends React.Component {
           <BS.Modal.Footer>
             {this.state.requestPending ? (
               <BS.Row>
-                <BS.Col lg={9} md={9} sm={9} xs={7}>
-                </BS.Col>
+              <BS.Col lg={7} md={7} sm={7} xs={3}>
+              </BS.Col>
+              <BS.Col lg={2} md={2} sm={2} xs={4} style={{paddingRight: 0}}>
+              </BS.Col>
                 <BS.Col lg={3} md={3} sm={3} xs={5}>
                   <BS.Button bsStyle="primary" style={{width: "100%", fontSize: "21px", paddingTop: "1px", paddingBottom: "1px"}}>
                     <FontAwesome name='spinner' spin />
@@ -156,7 +160,7 @@ export default class Login extends React.Component {
                 <BS.Col lg={7} md={7} sm={7} xs={3}>
                 </BS.Col>
                 <BS.Col lg={2} md={2} sm={2} xs={4} style={{paddingRight: 0}}>
-                  <BS.Button style={{width: "100%"}} onClick={() => {this.props.store.modal.hideModal(this.modalName);}}>
+                  <BS.Button style={{width: "100%"}}  onClick={() => {this.props.store.modal.hideModal(this.modalName);}}>
                     Cancel
                   </BS.Button>
                 </BS.Col>

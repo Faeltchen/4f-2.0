@@ -6,6 +6,8 @@ import * as BS from 'react-bootstrap';
 import { observer, inject } from "mobx-react";
 import Moment from 'moment';
 import copy from 'copy-to-clipboard';
+import anchorme from 'anchorme';
+import ReactHtmlParser, { processNodes, convertNodeToElement, htmlparser2 } from 'react-html-parser';
 
 var classes = new BEMHelper('comment');
 
@@ -15,12 +17,39 @@ export default class Comment extends React.Component {
 
   constructor(props) {
     super(props);
-    console.log(this.props.comment.replys);
+
     this.constructQuotes = this.constructQuotes.bind(this);
     this.state = {
-      anchorLinkActive: false,
       expandQuotes: false,
     }
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if(this.state === nextState) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+
+  parseComment(comment) {
+    return ReactHtmlParser(anchorme(comment, {
+      truncate: 20,
+      attributes: [
+        {
+          name: "target",
+          value:"_blank"
+        },
+        // a function that returns an object
+        function(urlObj){
+          return {
+            name: 'title',
+            value: urlObj.raw
+          };
+        },
+      ]
+    }));
   }
 
   render() {
@@ -74,15 +103,24 @@ export default class Comment extends React.Component {
           </div>
         </div>
         <div {...classes('body', '')}>
-          {comment.replys.length ? this.constructQuotes(comment.replys.length - 1) : null}
-          {comment.comment}
+          <div {...classes('text', '')}>
+            {comment.replys.length ? this.constructQuotes(comment.replys.length - 1) : null}
+            {comment.contentRef ?
+              <Link to={'/content/'+comment.contentRef._id}>
+                <div {...classes('image', '')} style={{ backgroundImage: 'url(/uploads/'+comment.contentRef.image.path + '/thumb/' + comment.contentRef.image.filename + ')' }}>
+                </div>
+              </Link>
+            : null}
+            {this.parseComment(comment.comment)}
+          </div>
+          <div {...classes('clear', '')}>
+          </div>
         </div>
       </div>
     );
   }
 
   constructQuotes(quoteIndex) {
-    console.log(quoteIndex);
     if(quoteIndex >= 0) {
       const reply = this.props.comment.replys[quoteIndex];
       this.blockquotes = (
@@ -90,7 +128,7 @@ export default class Comment extends React.Component {
           <div>{reply.user.name}&nbsp;@&nbsp;{Moment(reply.date).lang('de').format('DD.MM.YYYY HH:mm:ss')}</div>
           {(quoteIndex >= 1 && !this.state.expandQuotes) ? <a {...classes('more', '')} onClick={() => this.setState({expandQuotes: true})}><FontAwesome name='plus' />&nbsp;more</a> : null}
           {(quoteIndex < 1 || this.state.expandQuotes) ? this.constructQuotes(quoteIndex - 1) : null}
-          <footer>{reply.comment}</footer>
+          <footer>{ this.parseComment(reply.comment) }</footer>
         </blockquote>
       );
     }

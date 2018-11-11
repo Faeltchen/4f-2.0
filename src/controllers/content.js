@@ -4,9 +4,12 @@ const jwt = require('jsonwebtoken');
 const autoIncrement = require('mongoose-auto-increment');
 const moment = require('moment-timezone');
 const deepPopulate = require('mongoose-deep-populate')(mongoose);
-
+const striptags = require('striptags');
+const sanitizeHtml = require('sanitize-html');
 const Content = require("../models/content");
 const Comment = require("../models/comment");
+const globalConfig = require('../configs/global.js');
+const contentErrors = require("../constants/errorCodes").content;
 
 const router = express.Router();
 const secretToken = "ilovescotchyscotch";
@@ -14,7 +17,7 @@ const secretToken = "ilovescotchyscotch";
 router.post('/', function (req, res) {
   Promise.all([
     Content.count({}),
-    Content.find({}).sort({date: 'desc'}).populate('image')
+    Content.find({isReference: {$in: [false]}}).sort({date: 'desc'}).populate('image')
   ]).then(([count, wallContent]) => {
     var response = {
       wallContent,
@@ -33,14 +36,18 @@ router.post('/comment/', function (req, res) {
   };
 
   jwt.verify(req.body.token, secretToken, function(err, decoded) {
+
     if (err)
       errors.comment.push("Token cannot be decoded");
 
-    if(!req.body.addComment.length)
-      errors.comment.push("Your comment is not long enough");
-
     if(!req.body.content_id.length)
       errors.comment.push("Invalid content id");
+
+    const commentLengthAccepted = (req.body.addComment.replace(/[\n\r\t\s]/g, "").length >= globalConfig.comment.minLength) &&
+                                  (req.body.addComment.replace(/[\n\r\t\s]/g, "").length <= globalConfig.comment.maxLength);
+
+    if (!commentLengthAccepted)
+      errors.comment.push(contentErrors.COMMENT_LENGTH);
 
     new Promise((resolve, reject) => {
       if(!errors.comment.length) {
@@ -49,16 +56,20 @@ router.post('/comment/', function (req, res) {
             var createdComment = new Comment({
               content: req.body.content_id,
               user: decoded.id,
-              comment: req.body.addComment,
+              comment: sanitizeHtml(req.body.addComment.replace(/\n\s*\n\s*\n/g, '\n\n'), { allowedTags: [ 'br' ] }),
+              contentRef: req.body.contentRef,
               replys: req.body.addCommentReplys,
               date: moment().format(),
             });
             createdComment.save(function(err, comment) {
-              const comments = Comment.find({content: req.body.content_id}).populate('replys').populate({
-                path: 'user',
-                select: '_id name',
-              })
-              resolve(comments);
+              resolve(
+                Comment.find({content: req.body.content_id}).populate(
+                  {
+                    path: 'user',
+                    select: '_id name',
+                  },
+                ).deepPopulate(['replys.user', 'contentRef.image'])
+              );
             });
           }
           else {
@@ -70,9 +81,9 @@ router.post('/comment/', function (req, res) {
         reject(errors);
       }
     }).then(function(value) {
-      console.log(value);
       res.send({success: true, comments: value})
     }, function(reason) {
+      console.log(reason);
       res.send({success: false, errors: reason})
     });
   });
@@ -84,10 +95,13 @@ router.post('/:id', function (req, res) {
       path: 'user',
       select: '_id name role',
     }),
-    Comment.find({content: req.params.id}).populate('replys').populate({
-      path: 'user',
-      select: '_id name',
-    }).deepPopulate('replys.user'),
+    Comment.find({content: req.params.id}).populate(
+      {
+        path: 'user',
+        select: '_id name',
+      },
+    ).deepPopulate(['replys.user', 'contentRef.image'])
+
   ]).then(([content, comments]) => {
     res.json({
       content: content,

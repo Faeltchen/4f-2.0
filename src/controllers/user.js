@@ -5,7 +5,9 @@ var validator = require('email-validator');
 var passwordHash = require('password-hash');
 var moment = require('moment-timezone');
 var jwt = require('jsonwebtoken');
-var autoIncrement = require('mongoose-auto-increment');
+
+const registerErrors = require("../constants/errorCodes").register;
+
 const secretToken = "ilovescotchyscotch";
 
 var router = express.Router();
@@ -42,7 +44,6 @@ router.post('/login', function (req, res) {
     } else if (user) {
 
       if (passwordHash.verify(req.body.password, user.password)) {
-        console.log(user);
         const payload = {
           id: user._id,
           name: user.name,
@@ -75,28 +76,28 @@ router.post('/create', function (req, res) {
   var reqEmail = req.body.email;
 
   if(reqUsername.length !== req.body.username.trim().length) {
-    errors.username.push("Special characters except '_' and '-' are not allowed in username.");
+    errors.username.push(registerErrors.USERNAME_FORMAT);
   }
   else if (reqUsername.length > 20 || reqUsername.length < 5) {
-    errors.username.push("Username has not a sufficient length.");
+    errors.username.push(registerErrors.USERNAME_LENGTH);
   }
   if(reqPassword.length > 20  || reqPassword.length < 8) {
-    errors.password.push("Password has not a sufficient length.");
+    errors.password.push(registerErrors.PASSWORD_LENGTH);
   }
   if(!validator.validate(reqEmail)) {
-    errors.email.push("Email format ist not valid.");
+    errors.email.push(registerErrors.EMAIL_FORMAT);
   }
 
   if(!errors.username.length && !errors.password.length && !errors.email.length) {
     Promise.all([
       User.find({name : reqUsername}, function (err, result) {
         if(result.length) {
-          errors.username.push("Username already exists.");
+          errors.username.push(registerErrors.USERNAME_EXISTS);
         }
       }),
       User.find({email : reqEmail}, function (err, result) {
         if(result.length) {
-          errors.email.push("Email already exists.");
+          errors.email.push(registerErrors.EMAIL_EXISTS);
         }
       })
     ]).then(() => {
@@ -124,7 +125,6 @@ router.post('/create', function (req, res) {
   else {
     res.send(errors);
   }
-  //moment().tz("Europe/Berlin").format()
 });
 
 module.exports = router;

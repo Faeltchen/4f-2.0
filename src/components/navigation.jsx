@@ -2,6 +2,7 @@ import React from 'react';
 import * as BS from 'react-bootstrap';
 import { observer, inject } from "mobx-react";
 import FontAwesome from "react-fontawesome";
+import { Link } from 'react-router-dom';
 
 import UploadImage from "modals/uploadImage";
 import Login from "modals/login";
@@ -20,7 +21,7 @@ export default class Navigation extends React.Component {
       <BS.Navbar inverse collapseOnSelect>
         <BS.Navbar.Header>
           <BS.Navbar.Brand>
-            <a href="/">4fickr</a>
+            <Link to={'/'}>4fuckr 5.0</Link>
           </BS.Navbar.Brand>
           <BS.Navbar.Toggle />
         </BS.Navbar.Header>

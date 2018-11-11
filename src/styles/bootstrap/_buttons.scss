@@ -17,6 +17,8 @@
   background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
   border: 1px solid transparent;
   white-space: nowrap;
+  transition: all 0.2s ease-in;
+
   @include button-size($padding-base-vertical, $padding-base-horizontal, $font-size-base, $line-height-base, $btn-border-radius-base);
   @include user-select(none);
 
@@ -96,7 +98,6 @@ a.btn {
   font-size: 14px;
   padding-top: 4px;
   padding-bottom: 4px;
-  transition: all 0.2s ease-in;
   color: $brand-primary;
   border-color: $brand-primary;
   background: transparent;

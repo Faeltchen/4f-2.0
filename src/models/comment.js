@@ -12,6 +12,7 @@ module.exports = mongoose.model('Comment', new Schema({
     content: { type: Number, ref: 'Content' },
     user: { type: Number, ref: 'User' },
     comment: String,
+    contentRef: { type: Number, ref: 'Content' },
     replys: [{ type: Number, ref: 'Comment' }],
     date: Date,
 }).plugin(autoIncrement.plugin, 'Comment').plugin(deepPopulate, {
@@ -19,5 +20,8 @@ module.exports = mongoose.model('Comment', new Schema({
     'replys.user': {
       select: 'name',
     },
+    'contentRef.image': {
+      select: 'filename originalname path'
+    }
   }
 }));

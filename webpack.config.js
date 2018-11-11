@@ -4,10 +4,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: [
-    'react-hot-loader/patch',
-    './src/index.js'
-  ],
   module: {
     rules: [
       {
@@ -45,6 +41,9 @@ module.exports = {
       modals: path.resolve(__dirname, 'src/modals/'),
       utils: path.resolve(__dirname, 'src/utils/'),
       modals: path.resolve(__dirname, 'src/modals/'),
+      helpers: path.resolve(__dirname, 'src/helpers/'),
+      configs: path.resolve(__dirname, 'src/configs/'),
+      constants: path.resolve(__dirname, 'src/constants/'),
       controllers: path.resolve(__dirname, 'src/controllers/'),
     }
   },
